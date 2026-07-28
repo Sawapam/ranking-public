@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ค้นหาอันดับผู้สอบแข่งขัน</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-mark" aria-hidden="true">🏆</div>
+      <div>
+        <h1>ระบบค้นหาอันดับผู้สอบแข่งขัน</h1>
+        <p>ตำแหน่งรองปลัดเทศบาล ระดับต้น 69</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="search-card">
+      <div class="search-heading">
+        <h2>ตรวจสอบอันดับของคุณ</h2>
+        <p>กรอกชื่อ-สกุล หรือเบอร์โทรศัพท์ที่ใช้สมัครสอบ</p>
+      </div>
+
+      <form id="searchForm" class="search-form" novalidate>
+        <label for="searchInput">ชื่อ-สกุล หรือเบอร์โทรศัพท์</label>
+
+        <div class="search-row">
+          <input
+            id="searchInput"
+            name="search"
+            type="search"
+            placeholder="เช่น สมชาย ใจดี หรือ 0812345678"
+            autocomplete="off"
+            required
+          >
+
+          <button id="searchBtn" type="submit">
+            ค้นหา
+          </button>
+        </div>
+
+        <div class="search-note">
+          ระบบจะแสดงเฉพาะข้อมูลที่ตรงกับคำค้นหา
+        </div>
+      </form>
+    </section>
+
+    <section id="messageBox" class="message-box hidden" aria-live="polite"></section>
+
+    <section id="resultSection" class="result-section hidden">
+      <div class="result-header">
+        <div>
+          <h2>ผลการค้นหา</h2>
+          <p id="resultMeta"></p>
+        </div>
+
+        <button id="clearBtn" class="secondary-btn" type="button">
+          ค้นหาใหม่
+        </button>
+      </div>
+
+      <div id="resultList" class="result-list"></div>
+    </section>
+  </main>
+
+  <div id="loadingOverlay" class="loading-overlay hidden" aria-live="assertive">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <strong>กำลังค้นหาและคำนวณอันดับ</strong>
+      <span>กรุณารอสักครู่</span>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalName">รายละเอียดคะแนน</h2>
+          <p id="modalMeta"></p>
+        </div>
+
+        <button id="closeModalBtn" class="close-btn" type="button" aria-label="ปิด">
+          ×
+        </button>
+      </div>
+
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
