@@ -533,3 +533,25 @@ button{
     border-radius:14px;
   }
 }
+
+/* Public V2 additions */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;padding:6px;background:#e7edf5;border:1px solid var(--line);border-radius:15px}
+.mode-tab{min-height:46px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-weight:800}
+.mode-tab.active{background:#fff;color:var(--primary);box-shadow:0 3px 12px rgba(16,24,40,.08)}
+.verify-grid{display:grid;grid-template-columns:180px minmax(220px,1fr) auto;gap:10px;align-items:end}
+.form-field label{display:block;margin-bottom:7px;font-weight:700}
+.form-field input,.form-field select{width:100%;min-height:48px;border:1px solid #aebccd;border-radius:11px;padding:10px 12px;background:#fff;color:var(--text);outline:none}
+.form-field input:focus,.form-field select:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(18,61,117,.12)}
+.primary-btn{min-height:48px;border:0;border-radius:11px;padding:10px 18px;color:#fff;background:var(--primary);font-weight:800}
+.primary-btn:hover{background:var(--primary-dark)}
+.primary-btn:disabled{opacity:.55;cursor:not-allowed}
+.candidate-card{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:18px 20px;border:1px solid #abc7e4;border-radius:16px;background:#f5f9ff;box-shadow:var(--shadow)}
+.candidate-card h2{margin:3px 0 4px;color:var(--primary);font-size:23px}.candidate-card p{margin:0;color:var(--muted)}
+.eyebrow{color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.status-chip{flex:0 0 auto;padding:7px 11px;border-radius:999px;color:#175cd3;background:#eaf2ff;font-size:13px;font-weight:800}.status-chip.done{color:var(--success);background:#ecfdf3}
+.candidate-form{margin-top:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full-width{grid-column:1/-1}
+.form-fieldset{margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:13px}.form-fieldset legend{padding:0 7px;color:var(--primary);font-weight:800}.tenure-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.confirm-row{display:flex;align-items:flex-start;gap:10px;margin:16px 0;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe;line-height:1.5}.confirm-row input{width:20px;height:20px;flex:0 0 auto;margin-top:1px}
+.submit-btn{width:100%}.message-box.success{color:var(--success);background:#ecfdf3;border:1px solid #a6f4c5}
+@media(max-width:700px){.verify-grid{grid-template-columns:1fr}.verify-btn{width:100%}.candidate-card{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.full-width{grid-column:auto}.tenure-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:420px){.mode-tabs{grid-template-columns:1fr}.tenure-grid{grid-template-columns:1fr}.candidate-card h2{font-size:20px}}
