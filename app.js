@@ -44,7 +44,7 @@ async function handleVerifyCandidate(event) {
   const group = $('examGroup').value;
   const last3 = $('examLast3').value.trim();
   if (!group || !/^\d{3}$/.test(last3)) {
-    showSubmitMessage('กรุณาเลือกกลุ่มและกรอกเลขประจำตัวสอบให้ครบ 3 หลัก', 'error');
+    showSubmitMessage('กรุณาเลือกสนามสอบและกรอกเลขประจำตัวสอบให้ครบ 3 หลัก', 'error');
     return;
   }
 
@@ -73,7 +73,7 @@ async function handleVerifyCandidate(event) {
 
 function showCandidateCard(candidate, alreadySubmitted) {
   $('candidateName').textContent = candidate.name || '-';
-  $('candidateMeta').textContent = 'กลุ่ม ' + candidate.group + ' • เลขประจำตัวสอบ ' + candidate.fullExamIdMasked + ' • 3 หลักท้าย ' + candidate.last3;
+  $('candidateMeta').textContent = 'สนามสอบ ' + candidate.group + ' • เลขประจำตัวสอบ ' + candidate.fullExamIdMasked + ' • 3 หลักท้าย ' + candidate.last3;
   $('candidateStatus').textContent = alreadySubmitted ? 'มีข้อมูลแล้ว' : 'ยืนยันรายชื่อแล้ว';
   $('candidateStatus').classList.toggle('done', alreadySubmitted);
   $('candidateCard').classList.remove('hidden');
