@@ -3,91 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ค้นหาอันดับผู้สอบแข่งขัน</title>
+  <title>ระบบผู้สอบผ่านและค้นหาอันดับ</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
   <header class="app-header">
     <div class="header-inner">
       <div class="brand-mark" aria-hidden="true">🏆</div>
       <div>
-        <h1>ระบบค้นหาอันดับผู้สอบแข่งขัน</h1>
+        <h1>ระบบผู้สอบผ่านและค้นหาอันดับ</h1>
         <p>ตำแหน่งรองปลัดเทศบาล ระดับต้น 69</p>
       </div>
     </div>
   </header>
 
   <main class="page-shell">
-    <section class="search-card">
-      <div class="search-heading">
-        <h2>ตรวจสอบอันดับของคุณ</h2>
-        <p>กรอกชื่อ-สกุล หรือเบอร์โทรศัพท์ที่ใช้สมัครสอบ</p>
-      </div>
+    <nav class="mode-tabs" aria-label="เมนูหลัก">
+      <button id="submitTab" class="mode-tab active" type="button">ส่งข้อมูลผู้สอบผ่าน</button>
+      <button id="rankingTab" class="mode-tab" type="button">ค้นหาอันดับของฉัน</button>
+    </nav>
 
-      <form id="searchForm" class="search-form" novalidate>
-        <label for="searchInput">ชื่อ-สกุล หรือเบอร์โทรศัพท์</label>
-
-        <div class="search-row">
-          <input
-            id="searchInput"
-            name="search"
-            type="search"
-            placeholder="เช่น สมชาย ใจดี หรือ 0812345678"
-            autocomplete="off"
-            required
-          >
-
-          <button id="searchBtn" type="submit">
-            ค้นหา
-          </button>
+    <section id="submitView">
+      <section class="search-card">
+        <div class="search-heading">
+          <h2>ตรวจสอบรายชื่อก่อนกรอกข้อมูล</h2>
+          <p>เลือกกลุ่มเลขสอบและกรอกเลขประจำตัวสอบ 3 หลักท้าย</p>
         </div>
 
-        <div class="search-note">
-          ระบบจะแสดงเฉพาะข้อมูลที่ตรงกับคำค้นหา
+        <form id="verifyForm" class="search-form" novalidate>
+          <div class="verify-grid">
+            <div class="form-field">
+              <label for="examGroup">กลุ่มเลขสอบ</label>
+              <select id="examGroup" required>
+                <option value="">เลือกกลุ่ม</option>
+                <option value="1">กลุ่ม 1</option>
+                <option value="2">กลุ่ม 2</option>
+                <option value="3">กลุ่ม 3</option>
+                <option value="4">กลุ่ม 4</option>
+                <option value="5">กลุ่ม 5</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="examLast3">เลขประจำตัวสอบ 3 หลักท้าย</label>
+              <input id="examLast3" inputmode="numeric" maxlength="3" placeholder="เช่น 040" required>
+            </div>
+            <button id="verifyBtn" class="primary-btn verify-btn" type="submit">ตรวจสอบรายชื่อ</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="candidateCard" class="candidate-card hidden">
+        <div>
+          <div class="eyebrow">ข้อมูลจากรายชื่อทางการ</div>
+          <h2 id="candidateName">-</h2>
+          <p id="candidateMeta">-</p>
         </div>
-      </form>
+        <span id="candidateStatus" class="status-chip">ตรวจสอบแล้ว</span>
+      </section>
+
+      <section id="alreadySubmittedBox" class="message-box info hidden" aria-live="polite"></section>
+
+      <section id="submissionSection" class="result-section hidden">
+        <div class="result-header">
+          <div>
+            <h2>กรอกข้อมูลผู้สอบผ่าน</h2>
+            <p>ชื่อและเลขประจำตัวสอบถูกล็อกจากรายชื่อทางการ</p>
+          </div>
+        </div>
+
+        <form id="submissionForm" class="candidate-form" novalidate>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="phone">เบอร์โทรศัพท์</label>
+              <input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="0812345678" required>
+            </div>
+            <div class="form-field">
+              <label for="examScore">คะแนนสอบ</label>
+              <input id="examScore" type="number" min="0" max="100" step="1" required>
+            </div>
+          </div>
+
+          <fieldset class="form-fieldset">
+            <legend>อายุราชการ</legend>
+            <div class="tenure-grid">
+              <div class="form-field"><label for="serviceYears">ปี</label><input id="serviceYears" type="number" min="0" max="60" value="0" required></div>
+              <div class="form-field"><label for="serviceMonths">เดือน</label><input id="serviceMonths" type="number" min="0" max="11" value="0" required></div>
+              <div class="form-field"><label for="serviceDays">วัน</label><input id="serviceDays" type="number" min="0" max="31" value="0" required></div>
+            </div>
+          </fieldset>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="meritStep">ความดีความชอบ (ขั้น)</label>
+              <input id="meritStep" type="number" min="0" max="20" step="0.5" required>
+            </div>
+            <div class="form-field">
+              <label for="education">วุฒิการศึกษา</label>
+              <select id="education" required>
+                <option value="">เลือกวุฒิการศึกษา</option>
+                <option value="ต่ำกว่าปริญญาตรี">ต่ำกว่าปริญญาตรี</option>
+                <option value="ปริญญาตรี">ปริญญาตรี</option>
+                <option value="ปริญญาโท">ปริญญาโท</option>
+                <option value="ปริญญาเอก">ปริญญาเอก</option>
+              </select>
+            </div>
+            <div class="form-field full-width">
+              <label for="discipline">โทษทางวินัย</label>
+              <select id="discipline" required>
+                <option value="">เลือกข้อมูลโทษทางวินัย</option>
+                <option value="ไม่มี">ไม่มี</option>
+                <option value="ภาคทัณฑ์">ภาคทัณฑ์</option>
+                <option value="ตัดเงินเดือน">ตัดเงินเดือน</option>
+                <option value="ลดขั้นเงินเดือน">ลดขั้นเงินเดือน</option>
+                <option value="ปลดออก">ปลดออก</option>
+                <option value="ไล่ออก">ไล่ออก</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="confirm-row">
+            <input id="confirmAccuracy" type="checkbox" required>
+            <span>ข้าพเจ้ารับรองว่าข้อมูลที่กรอกเป็นความจริงและตรวจสอบแล้ว</span>
+          </label>
+
+          <button id="submitCandidateBtn" class="primary-btn submit-btn" type="submit">ส่งข้อมูลเพื่อรอตรวจสอบ</button>
+        </form>
+      </section>
+
+      <section id="submitMessageBox" class="message-box hidden" aria-live="polite"></section>
     </section>
 
-    <section id="messageBox" class="message-box hidden" aria-live="polite"></section>
-
-    <section id="resultSection" class="result-section hidden">
-      <div class="result-header">
-        <div>
-          <h2>ผลการค้นหา</h2>
-          <p id="resultMeta"></p>
+    <section id="rankingView" class="hidden">
+      <section class="search-card">
+        <div class="search-heading">
+          <h2>ตรวจสอบอันดับของคุณ</h2>
+          <p>กรอกชื่อ-สกุล หรือเบอร์โทรศัพท์ที่ใช้ส่งข้อมูล</p>
         </div>
+        <form id="searchForm" class="search-form" novalidate>
+          <label for="searchInput">ชื่อ-สกุล หรือเบอร์โทรศัพท์</label>
+          <div class="search-row">
+            <input id="searchInput" name="search" type="search" placeholder="เช่น สมชาย ใจดี หรือ 0812345678" autocomplete="off" required>
+            <button id="searchBtn" type="submit">ค้นหา</button>
+          </div>
+          <div class="search-note">ระบบจะแสดงเฉพาะข้อมูลที่ตรงกับคำค้นหา</div>
+        </form>
+      </section>
 
-        <button id="clearBtn" class="secondary-btn" type="button">
-          ค้นหาใหม่
-        </button>
-      </div>
-
-      <div id="resultList" class="result-list"></div>
+      <section id="messageBox" class="message-box hidden" aria-live="polite"></section>
+      <section id="resultSection" class="result-section hidden">
+        <div class="result-header">
+          <div><h2>ผลการค้นหา</h2><p id="resultMeta"></p></div>
+          <button id="clearBtn" class="secondary-btn" type="button">ค้นหาใหม่</button>
+        </div>
+        <div id="resultList" class="result-list"></div>
+      </section>
     </section>
   </main>
 
   <div id="loadingOverlay" class="loading-overlay hidden" aria-live="assertive">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <strong>กำลังค้นหาและคำนวณอันดับ</strong>
-      <span>กรุณารอสักครู่</span>
-    </div>
+    <div class="loading-box"><div class="spinner"></div><strong id="loadingTitle">กำลังดำเนินการ</strong><span id="loadingText">กรุณารอสักครู่</span></div>
   </div>
 
   <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div>
-          <h2 id="modalName">รายละเอียดคะแนน</h2>
-          <p id="modalMeta"></p>
-        </div>
-
-        <button id="closeModalBtn" class="close-btn" type="button" aria-label="ปิด">
-          ×
-        </button>
+        <div><h2 id="modalName">รายละเอียดคะแนน</h2><p id="modalMeta"></p></div>
+        <button id="closeModalBtn" class="close-btn" type="button" aria-label="ปิด">×</button>
       </div>
-
       <div id="modalBody" class="modal-body"></div>
     </div>
   </div>
