@@ -555,3 +555,29 @@ button{
 .submit-btn{width:100%}.message-box.success{color:var(--success);background:#ecfdf3;border:1px solid #a6f4c5}
 @media(max-width:700px){.verify-grid{grid-template-columns:1fr}.verify-btn{width:100%}.candidate-card{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.full-width{grid-column:auto}.tenure-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:420px){.mode-tabs{grid-template-columns:1fr}.tenure-grid{grid-template-columns:1fr}.candidate-card h2{font-size:20px}}
+
+/* Public Security & Self Edit */
+.mode-tabs{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.edit-verify-grid{
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) minmax(220px,1.3fr) auto;
+  gap:10px;
+  align-items:end;
+}
+
+@media(max-width:760px){
+  .mode-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .edit-verify-grid{
+    grid-template-columns:1fr;
+  }
+
+  .edit-verify-grid .primary-btn{
+    width:100%;
+  }
+}
