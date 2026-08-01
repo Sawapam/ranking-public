@@ -21,6 +21,7 @@
     <nav class="mode-tabs" aria-label="เมนูหลัก">
       <button id="submitTab" class="mode-tab active" type="button">ส่งข้อมูลผู้สอบผ่าน</button>
       <button id="rankingTab" class="mode-tab" type="button">ค้นหาอันดับของฉัน</button>
+      <button id="editTab" class="mode-tab" type="button">แก้ไขข้อมูลของฉัน</button>
     </nav>
 
     <section id="submitView">
@@ -137,15 +138,15 @@
       <section class="search-card">
         <div class="search-heading">
           <h2>ตรวจสอบอันดับของคุณ</h2>
-          <p>กรอกชื่อ-สกุล หรือเบอร์โทรศัพท์ที่ใช้ส่งข้อมูล</p>
+          <p>กรอกเบอร์โทรศัพท์ 10 หลักที่ใช้ส่งข้อมูล</p>
         </div>
         <form id="searchForm" class="search-form" novalidate>
-          <label for="searchInput">ชื่อ-สกุล หรือเบอร์โทรศัพท์</label>
+          <label for="searchInput">เบอร์โทรศัพท์ 10 หลัก</label>
           <div class="search-row">
-            <input id="searchInput" name="search" type="search" placeholder="เช่น สมชาย ใจดี หรือ 0812345678" autocomplete="off" required>
+            <input id="searchInput" name="search" type="search" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" autocomplete="off" required>
             <button id="searchBtn" type="submit">ค้นหา</button>
           </div>
-          <div class="search-note">ระบบจะแสดงเฉพาะข้อมูลที่ตรงกับคำค้นหา</div>
+          <div class="search-note">ต้องกรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก</div>
         </form>
       </section>
 
@@ -158,6 +159,120 @@
         <div id="resultList" class="result-list"></div>
       </section>
     </section>
+
+    <section id="editView" class="hidden">
+      <section class="search-card">
+        <div class="search-heading">
+          <h2>แก้ไขข้อมูลของฉัน</h2>
+          <p>กรอกเลขประจำตัวสอบ 3 หลักสุดท้ายและเบอร์โทรศัพท์เดิม 10 หลัก</p>
+        </div>
+
+        <form id="editVerifyForm" class="search-form" novalidate>
+          <div class="edit-verify-grid">
+            <div class="form-field">
+              <label for="editLast3">เลขประจำตัวสอบ 3 หลักสุดท้าย</label>
+              <input id="editLast3" inputmode="numeric" maxlength="3" placeholder="เช่น 001" required>
+            </div>
+
+            <div class="form-field">
+              <label for="editCurrentPhone">เบอร์โทรศัพท์เดิม 10 หลัก</label>
+              <input id="editCurrentPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="0812345678" required>
+            </div>
+
+            <button id="editVerifyBtn" class="primary-btn" type="submit">ตรวจสอบข้อมูล</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="editCandidateCard" class="candidate-card hidden">
+        <div>
+          <div class="eyebrow">ข้อมูลที่ยืนยันแล้ว</div>
+          <h2 id="editCandidateName">-</h2>
+          <p id="editCandidateMeta">-</p>
+        </div>
+        <span class="status-chip">แก้ไขข้อมูล</span>
+      </section>
+
+      <section id="editSection" class="result-section hidden">
+        <div class="result-header">
+          <div>
+            <h2>ข้อมูลที่ต้องการแก้ไข</h2>
+            <p>เมื่อบันทึกแล้ว สถานะจะเปลี่ยนเป็นรอตรวจสอบ</p>
+          </div>
+        </div>
+
+        <form id="editForm" class="candidate-form" novalidate>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="editPhone">เบอร์โทรศัพท์</label>
+              <input id="editPhone" type="tel" inputmode="numeric" maxlength="10" required>
+            </div>
+
+            <div class="form-field">
+              <label for="editExamScore">คะแนนสอบ</label>
+              <input id="editExamScore" type="number" min="0" max="100" step="1" required>
+            </div>
+          </div>
+
+          <fieldset class="form-fieldset">
+            <legend>อายุราชการ</legend>
+            <div class="tenure-grid">
+              <div class="form-field">
+                <label for="editServiceYears">ปี</label>
+                <input id="editServiceYears" type="number" min="0" max="60" required>
+              </div>
+              <div class="form-field">
+                <label for="editServiceMonths">เดือน</label>
+                <input id="editServiceMonths" type="number" min="0" max="11" required>
+              </div>
+              <div class="form-field">
+                <label for="editServiceDays">วัน</label>
+                <input id="editServiceDays" type="number" min="0" max="31" required>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="editMeritStep">ความดีความชอบ (ขั้น)</label>
+              <input id="editMeritStep" type="number" min="0" max="20" step="0.5" required>
+            </div>
+
+            <div class="form-field">
+              <label for="editEducation">วุฒิการศึกษา</label>
+              <select id="editEducation" required>
+                <option value="ต่ำกว่าปริญญาตรี">ต่ำกว่าปริญญาตรี</option>
+                <option value="ปริญญาตรี">ปริญญาตรี</option>
+                <option value="ปริญญาโท">ปริญญาโท</option>
+                <option value="ปริญญาเอก">ปริญญาเอก</option>
+              </select>
+            </div>
+
+            <div class="form-field full-width">
+              <label for="editDiscipline">โทษทางวินัย</label>
+              <select id="editDiscipline" required>
+                <option value="ไม่มี">ไม่มี</option>
+                <option value="ภาคทัณฑ์">ภาคทัณฑ์</option>
+                <option value="ตัดเงินเดือน">ตัดเงินเดือน</option>
+                <option value="ลดขั้นเงินเดือน">ลดขั้นเงินเดือน</option>
+                <option value="ปลดออก">ปลดออก</option>
+                <option value="ไล่ออก">ไล่ออก</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="confirm-row">
+            <input id="editConfirmAccuracy" type="checkbox" required>
+            <span>ข้าพเจ้ารับรองว่าข้อมูลที่แก้ไขเป็นความจริงและตรวจสอบแล้ว</span>
+          </label>
+
+          <button id="saveEditBtn" class="primary-btn submit-btn" type="submit">บันทึกการแก้ไข</button>
+        </form>
+      </section>
+
+      <section id="editMessageBox" class="message-box hidden" aria-live="polite"></section>
+    </section>
+
   </main>
 
   <div id="loadingOverlay" class="loading-overlay hidden" aria-live="assertive">
