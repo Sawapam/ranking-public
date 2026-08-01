@@ -73,7 +73,7 @@ async function handleVerifyCandidate(event) {
 
 function showCandidateCard(candidate, alreadySubmitted) {
   $('candidateName').textContent = candidate.name || '-';
-  $('candidateMeta').textContent = 'สนามสอบ ' + candidate.group + ' • เลขประจำตัวสอบ ' + candidate.fullExamIdMasked + ' • 3 หลักท้าย ' + candidate.last3;
+  $('candidateMeta').textContent = 'สนามสอบ ' + candidate.group + ' • เลขประจำตัวสอบ ' + candidate.fullExamIdMasked + ' • 3 หลักสุดท้าย ' + candidate.last3;
   $('candidateStatus').textContent = alreadySubmitted ? 'มีข้อมูลแล้ว' : 'ยืนยันรายชื่อแล้ว';
   $('candidateStatus').classList.toggle('done', alreadySubmitted);
   $('candidateCard').classList.remove('hidden');
