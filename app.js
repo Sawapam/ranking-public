@@ -1,5 +1,13 @@
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw7Dzk1CzR0sGwecF52RCffqchc9yHQDurqVudZPbU-baSNJu8vHXV2aNzW6_Z7i08rKA/exec';
 
+const EXAM_SITE_MAP = Object.freeze({
+  '1': 'เชียงใหม่',
+  '2': 'ขอนแก่น',
+  '3': 'ศูนย์ธรรมศาสตร์',
+  '4': 'ชลบุรี',
+  '5': 'นครศรีธรรมราช'
+});
+
 let currentRows = [];
 let verifiedCandidate = null;
 
@@ -73,7 +81,12 @@ async function handleVerifyCandidate(event) {
 
 function showCandidateCard(candidate, alreadySubmitted) {
   $('candidateName').textContent = candidate.name || '-';
-  $('candidateMeta').textContent = 'สนามสอบ ' + candidate.group + ' • เลขประจำตัวสอบ ' + candidate.fullExamIdMasked + ' • 3 หลักสุดท้าย ' + candidate.last3;
+  $('candidateMeta').textContent =
+    getExamSiteName(candidate.examSite || candidate.group) +
+    ' • เลขประจำตัวสอบ ' +
+    candidate.fullExamIdMasked +
+    ' • 3 หลักสุดท้าย ' +
+    candidate.last3;
   $('candidateStatus').textContent = alreadySubmitted ? 'มีข้อมูลแล้ว' : 'ยืนยันรายชื่อแล้ว';
   $('candidateStatus').classList.toggle('done', alreadySubmitted);
   $('candidateCard').classList.remove('hidden');
@@ -186,7 +199,7 @@ function renderResults(data) {
   $('resultMeta').textContent = 'พบ ' + formatNumber(data.matchCount || currentRows.length, 0) + ' รายการ • ผู้เข้าสอบทั้งหมด ' + formatNumber(data.totalCandidates || 0, 0) + ' คน • อัปเดต ' + (data.generatedAt || '-');
   $('resultList').innerHTML = currentRows.map((row, index) => `
     <button class="result-card" type="button" onclick="openDetail(${index})">
-      <div class="result-card-top"><div><h3 class="result-name">${escapeHtml(row.name || '-')}</h3><div class="result-sub">${escapeHtml(row.examSite || 'ไม่ระบุสนามสอบ')} • ${escapeHtml(row.phoneMasked || '-')}</div></div><div class="rank-badge">อันดับที่ ${formatNumber(row.rank, 0)}</div></div>
+      <div class="result-card-top"><div><h3 class="result-name">${escapeHtml(row.name || '-')}</h3><div class="result-sub">${escapeHtml(getExamSiteName(row.examSite))} • ${escapeHtml(row.phoneMasked || '-')}</div></div><div class="rank-badge">อันดับที่ ${formatNumber(row.rank, 0)}</div></div>
       <div class="result-score"><span>คะแนนรวม</span><strong>${formatNumber(row.totalScore, 2)}</strong></div>
     </button>`).join('');
   $('resultSection').classList.remove('hidden');
@@ -197,7 +210,10 @@ function openDetail(index) {
   const row = currentRows[index];
   if (!row) return;
   $('modalName').textContent = 'อันดับที่ ' + formatNumber(row.rank, 0) + ' — ' + (row.name || '-');
-  $('modalMeta').textContent = (row.examSite || 'ไม่ระบุสนามสอบ') + ' • ' + (row.phoneMasked || '-');
+  $('modalMeta').textContent =
+    getExamSiteName(row.examSite) +
+    ' • ' +
+    (row.phoneMasked || '-');
   $('modalBody').innerHTML = `
     <div class="detail-grid">
       ${detailItem('คะแนนสอบ', formatNumber(row.examScore, 0))}
@@ -230,6 +246,23 @@ function setLoading(isLoading, title = 'กำลังดำเนินกา�
   $('loadingText').textContent = text;
   ['verifyBtn', 'searchBtn'].forEach(id => { if ($(id)) $(id).disabled = isLoading; });
 }
+function getExamSiteName(value) {
+  const text = String(value == null ? '' : value).trim();
+
+  if (!text) return 'ไม่ระบุสนามสอบ';
+
+  if (EXAM_SITE_MAP[text]) return EXAM_SITE_MAP[text];
+
+  const normalized = text
+    .replace(/^สนามสอบ\s*/i, '')
+    .replace(/^กลุ่ม\s*/i, '')
+    .trim();
+
+  if (EXAM_SITE_MAP[normalized]) return EXAM_SITE_MAP[normalized];
+
+  return text;
+}
+
 function detailItem(label, value) { return `<div class="detail-item"><div class="detail-label">${escapeHtml(label)}</div><div class="detail-value">${value}</div></div>`; }
 function formatNumber(value, decimals) { const number = Number(value); if (!Number.isFinite(number)) return decimals > 0 ? Number(0).toFixed(decimals) : '0'; return number.toLocaleString('th-TH', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
 function escapeHtml(value) { return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
