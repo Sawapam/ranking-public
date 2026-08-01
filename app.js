@@ -10,26 +10,35 @@ const EXAM_SITE_MAP = Object.freeze({
 
 let currentRows = [];
 let verifiedCandidate = null;
+let editableCandidate = null;
 
 const $ = id => document.getElementById(id);
 
 document.addEventListener('DOMContentLoaded', () => {
   $('submitTab').addEventListener('click', () => switchMode('submit'));
   $('rankingTab').addEventListener('click', () => switchMode('ranking'));
+  $('editTab').addEventListener('click', () => switchMode('edit'));
+
   $('verifyForm').addEventListener('submit', handleVerifyCandidate);
   $('submissionForm').addEventListener('submit', handleSubmitCandidate);
-  $('examLast3').addEventListener('input', event => {
-    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 3);
-  });
-  $('phone').addEventListener('input', event => {
-    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 10);
-  });
   $('searchForm').addEventListener('submit', handleSearch);
+  $('editVerifyForm').addEventListener('submit', handleEditVerify);
+  $('editForm').addEventListener('submit', handleEditSubmit);
+
+  bindDigitsOnly('examLast3', 3);
+  bindDigitsOnly('phone', 10);
+  bindDigitsOnly('searchInput', 10);
+  bindDigitsOnly('editLast3', 3);
+  bindDigitsOnly('editCurrentPhone', 10);
+  bindDigitsOnly('editPhone', 10);
+
   $('clearBtn').addEventListener('click', resetSearch);
   $('closeModalBtn').addEventListener('click', closeDetail);
+
   $('detailModal').addEventListener('click', event => {
     if (event.target.id === 'detailModal') closeDetail();
   });
+
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') closeDetail();
   });
@@ -37,10 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchMode(mode) {
   const submitMode = mode === 'submit';
+  const rankingMode = mode === 'ranking';
+  const editMode = mode === 'edit';
+
   $('submitView').classList.toggle('hidden', !submitMode);
-  $('rankingView').classList.toggle('hidden', submitMode);
+  $('rankingView').classList.toggle('hidden', !rankingMode);
+  $('editView').classList.toggle('hidden', !editMode);
+
   $('submitTab').classList.toggle('active', submitMode);
-  $('rankingTab').classList.toggle('active', !submitMode);
+  $('rankingTab').classList.toggle('active', rankingMode);
+  $('editTab').classList.toggle('active', editMode);
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -80,7 +96,7 @@ async function handleVerifyCandidate(event) {
 }
 
 function showCandidateCard(candidate, alreadySubmitted) {
-  $('candidateName').textContent = candidate.name || '-';
+  $('candidateName').textContent = candidate.nameMasked || '-';
   $('candidateMeta').textContent =
     getExamSiteName(candidate.examSite || candidate.group) +
     ' • เลขประจำตัวสอบ ' +
@@ -144,8 +160,9 @@ async function handleSearch(event) {
   const keyword = $('searchInput').value.trim();
   hideMessage();
   hideResults();
-  if (!keyword) {
-    showMessage('กรุณากรอกชื่อ-สกุล หรือเบอร์โทรศัพท์', 'error');
+
+  if (!/^\d{10}$/.test(keyword)) {
+    showMessage('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', 'error');
     return;
   }
 
@@ -160,6 +177,177 @@ async function handleSearch(event) {
   } finally {
     setLoading(false);
   }
+}
+
+
+async function handleEditVerify(event) {
+  event.preventDefault();
+  resetEditState();
+  hideEditMessage();
+
+  const last3 = $('editLast3').value.trim();
+  const phone = $('editCurrentPhone').value.trim();
+
+  if (!/^\d{3}$/.test(last3) || !/^\d{10}$/.test(phone)) {
+    showEditMessage(
+      'กรุณากรอกเลขประจำตัวสอบ 3 หลักและเบอร์โทรศัพท์ 10 หลัก',
+      'error'
+    );
+    return;
+  }
+
+  setLoading(
+    true,
+    'กำลังตรวจสอบข้อมูล',
+    'ตรวจสอบเลขประจำตัวสอบและเบอร์โทรศัพท์'
+  );
+
+  try {
+    const data = await apiPost({
+      action: 'requestCandidateEdit',
+      last3,
+      phone
+    });
+
+    if (!data || !data.success) {
+      throw new Error(
+        data && data.message
+          ? data.message
+          : 'ไม่สามารถตรวจสอบข้อมูลได้'
+      );
+    }
+
+    editableCandidate = {
+      ...data.candidate,
+      currentPhone: phone,
+      last3
+    };
+
+    populateEditForm(editableCandidate);
+
+  } catch (error) {
+    showEditMessage(
+      error.message || 'เกิดข้อผิดพลาดจากระบบ',
+      'error'
+    );
+  } finally {
+    setLoading(false);
+  }
+}
+
+function populateEditForm(candidate) {
+  $('editCandidateName').textContent =
+    candidate.nameMasked || '-';
+
+  $('editCandidateMeta').textContent =
+    (candidate.examSite || 'ไม่ระบุสนามสอบ') +
+    ' • เลข 3 หลักสุดท้าย ' +
+    candidate.last3;
+
+  $('editPhone').value = candidate.phone || '';
+  $('editExamScore').value = candidate.examScore ?? '';
+  $('editServiceYears').value = candidate.serviceYears ?? 0;
+  $('editServiceMonths').value = candidate.serviceMonths ?? 0;
+  $('editServiceDays').value = candidate.serviceDays ?? 0;
+  $('editMeritStep').value = candidate.meritStep ?? '';
+  $('editEducation').value = candidate.education || 'ปริญญาตรี';
+  $('editDiscipline').value = candidate.discipline || 'ไม่มี';
+  $('editConfirmAccuracy').checked = false;
+
+  $('editCandidateCard').classList.remove('hidden');
+  $('editSection').classList.remove('hidden');
+
+  $('editSection').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
+async function handleEditSubmit(event) {
+  event.preventDefault();
+  hideEditMessage();
+
+  if (!editableCandidate) {
+    showEditMessage('กรุณาตรวจสอบข้อมูลก่อนแก้ไข', 'error');
+    return;
+  }
+
+  if (!$('editConfirmAccuracy').checked) {
+    showEditMessage('กรุณายืนยันความถูกต้องของข้อมูล', 'error');
+    return;
+  }
+
+  const payload = {
+    action: 'submitCandidateEdit',
+    submissionId: editableCandidate.submissionId,
+    last3: editableCandidate.last3,
+    currentPhone: editableCandidate.currentPhone,
+    phone: $('editPhone').value.trim(),
+    examScore: $('editExamScore').value,
+    serviceYears: $('editServiceYears').value,
+    serviceMonths: $('editServiceMonths').value,
+    serviceDays: $('editServiceDays').value,
+    meritStep: $('editMeritStep').value,
+    education: $('editEducation').value,
+    discipline: $('editDiscipline').value
+  };
+
+  setLoading(
+    true,
+    'กำลังบันทึกการแก้ไข',
+    'กรุณาอย่าปิดหน้าจอหรือกดซ้ำ'
+  );
+
+  $('saveEditBtn').disabled = true;
+
+  try {
+    const data = await apiPost(payload);
+
+    if (!data || !data.success) {
+      throw new Error(
+        data && data.message
+          ? data.message
+          : 'ไม่สามารถบันทึกการแก้ไขได้'
+      );
+    }
+
+    $('editSection').classList.add('hidden');
+    showEditMessage(data.message, 'success');
+    editableCandidate = null;
+
+  } catch (error) {
+    showEditMessage(
+      error.message || 'เกิดข้อผิดพลาดจากระบบ',
+      'error'
+    );
+  } finally {
+    $('saveEditBtn').disabled = false;
+    setLoading(false);
+  }
+}
+
+function resetEditState() {
+  editableCandidate = null;
+  $('editCandidateCard').classList.add('hidden');
+  $('editSection').classList.add('hidden');
+}
+
+function showEditMessage(message, type) {
+  $('editMessageBox').className = 'message-box ' + type;
+  $('editMessageBox').textContent = message;
+}
+
+function hideEditMessage() {
+  $('editMessageBox').className = 'message-box hidden';
+  $('editMessageBox').textContent = '';
+}
+
+function bindDigitsOnly(id, maxLength) {
+  $(id).addEventListener('input', event => {
+    event.target.value = event.target.value
+      .replace(/\D/g, '')
+      .slice(0, maxLength);
+  });
 }
 
 async function apiGet(action, params = {}) {
@@ -193,7 +381,7 @@ function resetCandidateState() {
 
 function renderResults(data) {
   if (!currentRows.length) {
-    showMessage('ไม่พบข้อมูลที่ตรงกับชื่อหรือเบอร์โทรศัพท์นี้', 'info');
+    showMessage('ไม่พบข้อมูลที่ตรงกับเบอร์โทรศัพท์นี้', 'info');
     return;
   }
   $('resultMeta').textContent = 'พบ ' + formatNumber(data.matchCount || currentRows.length, 0) + ' รายการ • ผู้เข้าสอบทั้งหมด ' + formatNumber(data.totalCandidates || 0, 0) + ' คน • อัปเดต ' + (data.generatedAt || '-');
